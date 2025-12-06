@@ -1,0 +1,39 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // Ensure pgvector extension is installed
+        DB::statement('CREATE EXTENSION IF NOT EXISTS vector');
+
+        $tableName = config('related-content.tables.embeddings', 'embeddings');
+        $dimensions = config('related-content.dimensions', 1536);
+
+        Schema::create($tableName, function (Blueprint $table) use ($dimensions) {
+            $table->id();
+            $table->morphs('embeddable');
+            $table->vector('embedding', $dimensions);
+            $table->string('model')->nullable();
+            $table->unsignedInteger('dimensions')->default($dimensions);
+            $table->timestamps();
+
+            $table->unique(['embeddable_type', 'embeddable_id']);
+        });
+
+        // Create HNSW index for fast similarity search
+        DB::statement("CREATE INDEX {$tableName}_embedding_idx ON {$tableName} USING hnsw (embedding vector_cosine_ops)");
+    }
+
+    public function down(): void
+    {
+        $tableName = config('related-content.tables.embeddings', 'embeddings');
+
+        Schema::dropIfExists($tableName);
+    }
+};
