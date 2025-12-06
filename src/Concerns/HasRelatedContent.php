@@ -23,6 +23,7 @@ trait HasRelatedContent
     public static function bootHasRelatedContent(): void
     {
         static::saved(function (Model $model) {
+            /** @phpstan-ignore method.notFound */
             if ($model->shouldSyncRelatedContent()) {
                 SyncRelatedContentJob::dispatch($model);
             }
@@ -30,8 +31,11 @@ trait HasRelatedContent
 
         static::deleted(function (Model $model) {
             // Clean up embedding and related content when model is deleted
+            /** @phpstan-ignore method.notFound */
             $model->embedding()->delete();
+            /** @phpstan-ignore method.notFound */
             $model->relatedContent()->delete();
+            /** @phpstan-ignore method.notFound */
             $model->relatedTo()->delete();
         });
     }

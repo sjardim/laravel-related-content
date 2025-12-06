@@ -7,6 +7,16 @@ namespace Vlados\LaravelRelatedContent\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
+/**
+ * @property int $id
+ * @property string $source_type
+ * @property int $source_id
+ * @property string $related_type
+ * @property int $related_id
+ * @property float $similarity
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ */
 class RelatedContent extends Model
 {
     protected $fillable = [
