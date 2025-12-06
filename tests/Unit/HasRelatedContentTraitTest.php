@@ -3,6 +3,7 @@
 use Vlados\LaravelRelatedContent\Models\Embedding;
 use Vlados\LaravelRelatedContent\Models\RelatedContent;
 use Vlados\LaravelRelatedContent\Tests\Fixtures\TestPost;
+use Vlados\LaravelRelatedContent\Tests\Fixtures\TestTranslatablePost;
 
 describe('HasRelatedContent Trait', function () {
     it('returns embeddable fields', function () {
@@ -208,5 +209,69 @@ describe('HasRelatedContent Trait', function () {
 
         expect($eventRelated)->toHaveCount(1)
             ->and($eventRelated->first()->id)->toBe($blogPost->id);
+    });
+});
+
+describe('HasRelatedContent Trait with Spatie Translatable', function () {
+    it('combines all translations for embeddable text', function () {
+        $post = new TestTranslatablePost;
+        $post->setTranslations('title', [
+            'en' => 'English Title',
+            'bg' => 'Bulgarian Title',
+        ]);
+        $post->setTranslations('content', [
+            'en' => 'English content here',
+            'bg' => 'Bulgarian content here',
+        ]);
+
+        $text = $post->toEmbeddableText();
+
+        // Should contain all translations
+        expect($text)->toContain('English Title')
+            ->and($text)->toContain('Bulgarian Title')
+            ->and($text)->toContain('English content here')
+            ->and($text)->toContain('Bulgarian content here');
+    });
+
+    it('handles empty translations gracefully', function () {
+        $post = new TestTranslatablePost;
+        $post->setTranslations('title', []);
+        $post->setTranslations('content', []);
+
+        $text = $post->toEmbeddableText();
+
+        expect($text)->toBe('');
+    });
+
+    it('handles partial translations', function () {
+        $post = new TestTranslatablePost;
+        $post->setTranslations('title', [
+            'en' => 'Only English Title',
+        ]);
+        $post->setTranslations('content', []);
+
+        $text = $post->toEmbeddableText();
+
+        expect($text)->toBe('Only English Title');
+    });
+
+    it('strips HTML from translated content', function () {
+        $post = new TestTranslatablePost;
+        $post->setTranslations('title', [
+            'en' => 'Plain Title',
+        ]);
+        $post->setTranslations('content', [
+            'en' => '<p>HTML <strong>content</strong></p>',
+            'bg' => '<div>More <em>HTML</em></div>',
+        ]);
+
+        $text = $post->toEmbeddableText();
+
+        expect($text)->toContain('HTML content')
+            ->and($text)->toContain('More HTML')
+            ->and($text)->not->toContain('<p>')
+            ->and($text)->not->toContain('<strong>')
+            ->and($text)->not->toContain('<div>')
+            ->and($text)->not->toContain('<em>');
     });
 });

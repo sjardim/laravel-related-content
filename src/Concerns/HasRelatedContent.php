@@ -52,14 +52,19 @@ trait HasRelatedContent
         $texts = [];
 
         foreach ($this->embeddableFields() as $field) {
-            $value = $this->getAttribute($field);
+            $value = null;
 
-            // Handle Spatie Translatable
-            if (method_exists($this, 'getTranslations')) {
+            // Handle Spatie Translatable - check if field is translatable
+            if (method_exists($this, 'isTranslatableAttribute') && $this->isTranslatableAttribute($field)) {
+                /** @phpstan-ignore method.notFound */
                 $translations = $this->getTranslations($field);
                 if (! empty($translations)) {
+                    // Combine all translations for embedding
                     $value = implode("\n", array_filter($translations));
                 }
+            } else {
+                // Regular non-translatable field
+                $value = $this->getAttribute($field);
             }
 
             if ($value) {
