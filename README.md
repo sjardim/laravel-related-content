@@ -46,6 +46,8 @@ php artisan migrate
 ```env
 # Embedding provider (openai or ollama)
 RELATED_CONTENT_PROVIDER=openai
+RELATED_CONTENT_DIMENSIONS=1536
+//RELATED_CONTENT_DIMENSIONS=768 //for Ollama
 
 # OpenAI settings
 OPENAI_API_KEY=your-api-key
@@ -55,6 +57,7 @@ OPENAI_EMBEDDING_DIMENSIONS=1536
 # Or Ollama settings
 OLLAMA_BASE_URL=http://localhost:11434
 OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+OLLAMA_EMBEDDING_DIMENSIONS=768
 ```
 
 ## Usage
