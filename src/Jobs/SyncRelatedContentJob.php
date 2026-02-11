@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Vlados\LaravelRelatedContent\Jobs;
 
+use Carbon\CarbonImmutable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Database\Eloquent\Model;
@@ -63,7 +64,7 @@ class SyncRelatedContentJob implements ShouldQueue
     /**
      * Determine the time at which the job should timeout.
      */
-    public function retryUntil(): \DateTime
+    public function retryUntil(): CarbonImmutable
     {
         return now()->addMinutes(5);
     }
